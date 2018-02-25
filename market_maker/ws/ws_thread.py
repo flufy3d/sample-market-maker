@@ -46,8 +46,8 @@ class BitMEXWebsocket():
 
         # We can subscribe right in the connection querystring, so let's build that.
         # Subscribe to all pertinent endpoints
-        subscriptions = [sub + ':' + symbol for sub in ["quote", "trade"]]
-        subscriptions += ["instrument"]  # We want all of them
+        subscriptions = [sub + ':' + symbol for sub in ["quote", "trade", "instrument"]]
+        #subscriptions += ["instrument"]  # We want all of them
         if self.shouldAuth:
             subscriptions += [sub + ':' + symbol for sub in ["order", "execution"]]
             subscriptions += ["margin", "position"]

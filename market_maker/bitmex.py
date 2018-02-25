@@ -165,7 +165,7 @@ class BitMEX(object):
     def amend_bulk_orders(self, orders):
         """Amend multiple orders."""
         # Note rethrow; if this fails, we want to catch it and re-tick
-        return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='PUT', rethrow_errors=True)
+        return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='PUT', rethrow_errors=True, max_retries=2)
 
     @authentication_required
     def create_bulk_orders(self, orders):
@@ -175,7 +175,7 @@ class BitMEX(object):
             order['symbol'] = self.symbol
             if self.postOnly:
                 order['execInst'] = 'ParticipateDoNotInitiate'
-        return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='POST')
+        return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='POST', max_retries=2)
 
     @authentication_required
     def open_orders(self):
@@ -204,7 +204,7 @@ class BitMEX(object):
         postdict = {
             'orderID': orderID,
         }
-        return self._curl_bitmex(path=path, postdict=postdict, verb="DELETE")
+        return self._curl_bitmex(path=path, postdict=postdict, verb="DELETE", max_retries=2)
 
     @authentication_required
     def withdraw(self, amount, fee, address):
@@ -255,7 +255,7 @@ class BitMEX(object):
         # Make the request
         response = None
         try:
-            self.logger.info("sending req to %s: %s" % (url, json.dumps(postdict or query or '')))
+            #self.logger.info("sending req to %s: %s" % (url, json.dumps(postdict or query or '')))
             req = requests.Request(verb, url, json=postdict, auth=auth, params=query)
             prepped = self.session.prepare_request(req)
             response = self.session.send(prepped, timeout=timeout)
@@ -309,7 +309,7 @@ class BitMEX(object):
             elif response.status_code == 503:
                 self.logger.warning("Unable to contact the BitMEX API (503), retrying. " +
                                     "Request: %s \n %s" % (url, json.dumps(postdict)))
-                time.sleep(3)
+                time.sleep(0.2)
                 return retry()
 
             elif response.status_code == 400:

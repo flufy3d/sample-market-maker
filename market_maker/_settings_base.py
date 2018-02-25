@@ -13,6 +13,10 @@ BASE_URL = "https://testnet.bitmex.com/api/v1/"
 API_KEY = ""
 API_SECRET = ""
 
+bitstamp_client_id = ""
+bitstamp_api_key = ""
+bitstamp_api_secret = ""
+
 
 ########################################################################################################################
 # Target
