@@ -221,6 +221,7 @@ class OrderManager:
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
+        self.last_exec_time = time()
         self.reset()
 
     def reset(self):
@@ -372,6 +373,7 @@ class OrderManager:
                 self.exchange.amend_bulk_orders(to_amend)
             except Exception as e:
                 logger.warn("Amending failed. Try Again.")
+                self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
 
 
         if len(to_create) > 0:
@@ -383,6 +385,7 @@ class OrderManager:
                 self.exchange.create_bulk_orders(to_create)
             except Exception as e:
                 logger.warn("Creating failed. Try Again.")
+                self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
 
         # Could happen if we exceed a delta limit
         if len(to_cancel) > 0:
@@ -394,6 +397,7 @@ class OrderManager:
                 self.exchange.cancel_bulk_orders(to_cancel)
             except Exception as e:
                 logger.warn("Canceling failed. Try Again.")
+                self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
 
     ###
     # Position Limits
@@ -526,10 +530,10 @@ class OrderManager:
         self.process_position_change()
 
     def run_loop(self):
-        last_exec_time = time()
+        self.last_exec_time = time()
         while True:
             curTime = time()
-            if curTime - last_exec_time > settings.LOOP_INTERVAL:
+            if curTime - self.last_exec_time > settings.LOOP_INTERVAL:
 
                 sys.stdout.write("------------------\n")
                 sys.stdout.flush()
@@ -540,7 +544,7 @@ class OrderManager:
                     logger.error("Realtime data connection unexpectedly closed, restarting.")
                     self.restart()
 
-                last_exec_time = curTime
+                self.last_exec_time = curTime
             else:
                 #need high speed
                 self.process_position_change()
