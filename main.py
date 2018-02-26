@@ -17,11 +17,12 @@ def run():
 
     else:
         # import market_maker here rather than at the top because it depends on settings.py existing
-        try:
-            from market_maker import bba
-            bba.run()
-        except ImportError:
-            print('Can\'t find settings.py. Run "marketmaker setup" to create project.')
+        #try:
+        print('----------------------kenshin',os.getcwd())
+        from market_maker import bba
+        bba.run()
+        #except ImportError:
+        #    print('Can\'t find settings.py. Run "marketmaker setup" to create project.')
 
 
 def copy_files():
@@ -37,5 +38,4 @@ def copy_files():
         print('Market Maker project already exists!')
 
 
-if __name__ == '__main__':
-    run()
+run()

@@ -27,13 +27,13 @@ It is free to use and modify for your own strategies. It provides the following:
 
 1. Create a [Testnet BitMEX Account](https://testnet.bitmex.com) and [deposit some TBTC](https://testnet.bitmex.com/app/deposit).
 2. Install: `pip install bitmex-market-maker`
-3. Create a marketmaker project: run `marketmaker setup`
+3. Create a marketmaker project: run `main.py setup`
     * This will create `settings.py` and `market_maker/` in the working directory.
     * Modify `settings.py` to tune parameters.
 4. Edit settings.py to add your [BitMEX API Key and Secret](https://testnet.bitmex.com/app/apiKeys) and change bot parameters.
     * Note that user/password authentication is not supported.
     * Run with `DRY_RUN=True` to test cost and spread.
-5. Run it: `marketmaker [symbol]`
+5. Run it: `main.py [symbol]`
 6. Satisfied with your bot's performance? Create a [live API Key](https://www.bitmex.com/app/apiKeys) for your
    BitMEX account, set the `BASE_URL` and start trading!
 

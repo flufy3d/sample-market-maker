@@ -42,8 +42,6 @@ ORDER_STEP_SIZE = 100
 # Distance between successive orders, as a percentage (example: 0.005 for 0.5%)
 INTERVAL = 0.005
 
-# Minimum spread to maintain, in percent, between asks & bids
-MIN_SPREAD = 0.01
 
 # If True, market-maker will place orders just inside the existing spread and work the interval % outwards,
 # rather than starting in the middle and killing potentially profitable spreads.
@@ -112,7 +110,7 @@ LOG_LEVEL = logging.INFO
 ORDERID_PREFIX = "mm_bitmex_"
 
 # If any of these files (and this file) changes, reload the bot.
-WATCHED_FILES = [join('market_maker', 'market_maker.py'), join('market_maker', 'bitmex.py'), 'settings.py']
+WATCHED_FILES = [join('market_maker', 'bba.py'), join('market_maker', 'bitmex.py'), 'settings.py']
 
 
 ########################################################################################################################
