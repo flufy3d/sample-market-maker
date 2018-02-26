@@ -7,6 +7,7 @@ import random
 import requests
 import atexit
 import signal
+import traceback
 
 from market_maker import bitmex
 from market_maker import bitstamp
@@ -370,9 +371,8 @@ class OrderManager:
             try:
                 self.exchange.amend_bulk_orders(to_amend)
             except Exception as e:
-                logger.warn("Amending failed. Try Again.Error: %s" % (str(e)))
-                sleep(0.5)
-                return self.place_orders()
+                logger.warn("Amending failed. Try Again.")
+
 
         if len(to_create) > 0:
             logger.info("Creating %d orders:" % (len(to_create)))
@@ -382,9 +382,8 @@ class OrderManager:
             try:
                 self.exchange.create_bulk_orders(to_create)
             except Exception as e:
-                logger.warn("Creating failed. Try Again.Error: %s" % (str(e)))
-                sleep(0.5)
-                return self.place_orders()
+                logger.warn("Creating failed. Try Again.")
+
         # Could happen if we exceed a delta limit
         if len(to_cancel) > 0:
             logger.info("Canceling %d orders:" % (len(to_cancel)))
@@ -394,9 +393,8 @@ class OrderManager:
             try:
                 self.exchange.cancel_bulk_orders(to_cancel)
             except Exception as e:
-                logger.warn("Canceling failed. Try Again.Error: %s" % (str(e)))
-                sleep(0.5)
-                return self.place_orders()
+                logger.warn("Canceling failed. Try Again.")
+
     ###
     # Position Limits
     ###
@@ -500,6 +498,7 @@ class OrderManager:
 
         _d_abs = abs(_d)
         if  _d_abs > 10:
+            logger.info('detect position change,current %d ,delta %d' % (self.running_qty,_d))
             if _d > 0:
                 price = float(bitstamp_ticker['buy'])
                 amount = _d_abs / price
@@ -517,7 +516,14 @@ class OrderManager:
             logger.info("less than 10 usd we don't exec bitstamp order.")
 
 
+    def do_once(self):
+        self.find_start_postion()
 
+        self.sanity_check()  
+
+        self.place_orders()
+
+        self.process_position_change()
 
     def run_loop(self):
         last_exec_time = time()
@@ -528,11 +534,7 @@ class OrderManager:
                 sys.stdout.write("------------------\n")
                 sys.stdout.flush()
 
-                self.find_start_postion()
-
-                self.sanity_check()  
-
-                self.place_orders()
+                self.do_once()
 
                 if not self.check_connection():
                     logger.error("Realtime data connection unexpectedly closed, restarting.")
@@ -579,3 +581,11 @@ def run():
         om.run_loop()
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
+    except Exception as e:
+        s=traceback.format_exc()
+        logger.error('crashed! error: %s' %(str(e)))
+        logger.error(s)
+        sys.exit()
+    finally:
+        pass
+

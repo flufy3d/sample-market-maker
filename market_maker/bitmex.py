@@ -249,7 +249,8 @@ class BitMEX(object):
         def retry():
             self.retries += 1
             if self.retries > max_retries:
-                raise Exception("Max retries on %s (%s) hit, raising." % (path, json.dumps(postdict or '')))
+                #raise Exception("Max retries on %s (%s) hit, raising." % (path, json.dumps(postdict or '')))
+                raise Exception("Max retries on %s hit, raising." % (path))
             return self._curl_bitmex(path, query, postdict, timeout, verb, rethrow_errors, max_retries)
 
         # Make the request
@@ -280,15 +281,12 @@ class BitMEX(object):
                 if verb == 'DELETE':
                     self.logger.error("Order not found: %s" % postdict['orderID'])
                     return
-                self.logger.error("Unable to contact the BitMEX API (404). " +
-                                  "Request: %s \n %s" % (url, json.dumps(postdict)))
+                self.logger.error("Unable to contact the BitMEX API (404). ")
                 exit_or_throw(e)
 
             # 429, ratelimit; cancel orders & wait until X-Ratelimit-Reset
             elif response.status_code == 429:
-                self.logger.error("Ratelimited on current request. Sleeping, then trying again. Try fewer " +
-                                  "order pairs or contact support@bitmex.com to raise your limits. " +
-                                  "Request: %s \n %s" % (url, json.dumps(postdict)))
+                self.logger.error("Ratelimited on current request. Sleeping, then trying again. Try fewer ")
 
                 # Figure out how long we need to wait.
                 ratelimit_reset = response.headers['X-Ratelimit-Reset']
@@ -307,8 +305,7 @@ class BitMEX(object):
 
             # 503 - BitMEX temporary downtime, likely due to a deploy. Try again
             elif response.status_code == 503:
-                self.logger.warning("Unable to contact the BitMEX API (503), retrying. " +
-                                    "Request: %s \n %s" % (url, json.dumps(postdict)))
+                self.logger.warning("Unable to contact the BitMEX API (503), retrying. ")
                 time.sleep(0.2)
                 return retry()
 
@@ -329,9 +326,7 @@ class BitMEX(object):
                                 order['side'] != ('Buy' if postdict['orderQty'] > 0 else 'Sell') or
                                 order['price'] != postdict['price'] or
                                 order['symbol'] != postdict['symbol']):
-                            raise Exception('Attempted to recover from duplicate clOrdID, but order returned from API ' +
-                                            'did not match POST.\nPOST data: %s\nReturned order: %s' % (
-                                                json.dumps(orders[i]), json.dumps(order)))
+                            raise Exception('Attempted to recover from duplicate clOrdID, but order returned from API ')
                     # All good
                     return orderResults
 
@@ -342,17 +337,16 @@ class BitMEX(object):
 
             # If we haven't returned or re-raised yet, we get here.
             self.logger.error("Unhandled Error: %s: %s" % (e, response.text))
-            self.logger.error("Endpoint was: %s %s: %s" % (verb, path, json.dumps(postdict)))
+            self.logger.error("Endpoint was: %s %s" % (verb, path))
             exit_or_throw(e)
 
         except requests.exceptions.Timeout as e:
             # Timeout, re-run this request
-            self.logger.warning("Timed out on request: %s (%s), retrying..." % (path, json.dumps(postdict or '')))
+            self.logger.warning("Timed out on request: %s, retrying..." % (path))
             return retry()
 
         except requests.exceptions.ConnectionError as e:
-            self.logger.warning("Unable to contact the BitMEX API (%s). Please check the URL. Retrying. " +
-                                "Request: %s %s \n %s" % (e, url, json.dumps(postdict)))
+            self.logger.warning("Unable to contact the BitMEX API (%s)." % (str(e)))
             time.sleep(1)
             return retry()
 
