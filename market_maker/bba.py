@@ -538,11 +538,11 @@ class OrderManager:
                 sys.stdout.write("------------------\n")
                 sys.stdout.flush()
 
-                self.do_once()
-
                 if not self.check_connection():
                     logger.error("Realtime data connection unexpectedly closed, restarting.")
                     self.restart()
+
+                self.do_once()
 
                 self.last_exec_time = curTime
             else:
