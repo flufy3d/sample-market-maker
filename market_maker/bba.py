@@ -359,7 +359,7 @@ class OrderManager:
         if len(to_amend) > 0:
             for amended_order in reversed(to_amend):
                 reference_order = [o for o in existing_orders if o['orderID'] == amended_order['orderID']][0]
-                logger.info("Amending %4s: %d @ %.*f to %d @ %.*f (%+.*f)" % (
+                sys.stdout.write("Amending %4s: %d @ %.*f to %d @ %.*f (%+.*f)\n" % (
                     amended_order['side'],
                     reference_order['leavesQty'], tickLog, reference_order['price'],
                     (amended_order['orderQty'] - reference_order['cumQty']), tickLog, amended_order['price'],
