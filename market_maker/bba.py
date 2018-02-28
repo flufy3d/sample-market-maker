@@ -362,25 +362,6 @@ class OrderManager:
             to_create.append(sell_orders[sells_matched])
             sells_matched += 1
 
-        if len(to_amend) > 0:
-            for amended_order in reversed(to_amend):
-                reference_order = [o for o in existing_orders if o['orderID'] == amended_order['orderID']][0]
-                sys.stdout.write("Amending %4s: %d @ %.*f to %d @ %.*f (%+.*f)\n" % (
-                    amended_order['side'],
-                    reference_order['leavesQty'], tickLog, reference_order['price'],
-                    (amended_order['orderQty'] - reference_order['cumQty']), tickLog, amended_order['price'],
-                    tickLog, (amended_order['price'] - reference_order['price'])
-                ))
-            # This can fail if an order has closed in the time we were processing.
-            # The API will send us `invalid ordStatus`, which means that the order's status (Filled/Canceled)
-            # made it not amendable.
-            # If that happens, we need to catch it and re-tick.
-            try:
-                self.exchange.amend_bulk_orders(to_amend)
-            except Exception as e:
-                logger.warn("Amending failed. Try Again.")
-                self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
-
 
         if len(to_create) > 0:
             logger.info("Creating %d orders:" % (len(to_create)))
@@ -409,6 +390,27 @@ class OrderManager:
             except Exception as e:
                 logger.warn("Creating failed. Try Again.")
                 self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
+
+                
+        if len(to_amend) > 0:
+            for amended_order in reversed(to_amend):
+                reference_order = [o for o in existing_orders if o['orderID'] == amended_order['orderID']][0]
+                sys.stdout.write("Amending %4s: %d @ %.*f to %d @ %.*f (%+.*f)\n" % (
+                    amended_order['side'],
+                    reference_order['leavesQty'], tickLog, reference_order['price'],
+                    (amended_order['orderQty'] - reference_order['cumQty']), tickLog, amended_order['price'],
+                    tickLog, (amended_order['price'] - reference_order['price'])
+                ))
+            # This can fail if an order has closed in the time we were processing.
+            # The API will send us `invalid ordStatus`, which means that the order's status (Filled/Canceled)
+            # made it not amendable.
+            # If that happens, we need to catch it and re-tick.
+            try:
+                self.exchange.amend_bulk_orders(to_amend)
+            except Exception as e:
+                logger.warn("Amending failed. Try Again.")
+                self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
+
 
         # Could happen if we exceed a delta limit
         if len(to_cancel) > 0:
