@@ -184,6 +184,11 @@ class ExchangeInterface:
         if instrument['midPrice'] is None:
             raise errors.MarketEmptyError("Orderbook is empty, cannot quote")
 
+    def place_order_raw(self, order, isclose):
+        if self.dry_run:
+            return order
+        return self.bitmex.place_order_raw(order, isclose)
+
     def amend_bulk_orders(self, orders):
         if self.dry_run:
             return orders
@@ -299,6 +304,7 @@ class OrderManager:
             if not self.short_position_limit_exceeded():
                 sell_orders.append(self.prepare_order(i))
 
+
         return self.converge_orders(buy_orders, sell_orders)
 
     def prepare_order(self, index):
@@ -382,7 +388,24 @@ class OrderManager:
                 logger.info("%4s %d @ %.*f" % (order['side'], order['orderQty'], tickLog, order['price']))
             
             try:
-                self.exchange.create_bulk_orders(to_create)
+                if len(to_create) == 1:
+                    _order = to_create[0]
+                    pos = self.exchange.get_delta()
+                    choose_side = ''
+                    if pos > 0:
+                        choose_side = 'Sell'
+                    else:
+                        choose_side = 'Buy'
+
+                    if _order['side'] == choose_side:
+                        logger.info("Only one order.try a close boost.")
+                        self.exchange.place_order_raw(_order,True)
+                    else:
+                        logger.info("Only one order.just place order.")
+                        self.exchange.place_order_raw(_order,False)
+
+                else:
+                    self.exchange.create_bulk_orders(to_create)
             except Exception as e:
                 logger.warn("Creating failed. Try Again.")
                 self.last_exec_time = time() - settings.LOOP_INTERVAL*0.8
@@ -590,6 +613,5 @@ def run():
         logger.error('crashed! error: %s' %(str(e)))
         logger.error(s)
         sys.exit()
-    finally:
-        pass
+
 

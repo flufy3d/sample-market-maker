@@ -145,6 +145,30 @@ class BitMEX(object):
         return self.place_order(-quantity, price)
 
     @authentication_required
+    def place_order_raw(self, order, isclose):
+        """Place an order."""
+        if order['price'] < 0:
+            raise Exception("Price must be positive.")
+
+        endpoint = "order"
+        # Generate a unique clOrdID with our prefix so we can identify it.
+        clOrdID = self.orderIDPrefix + base64.b64encode(uuid.uuid4().bytes).decode('utf8').rstrip('=\n')
+
+        order['symbol'] = self.symbol
+        order['clOrdID'] = clOrdID
+        _execInst = ''
+        if self.postOnly:
+            _execInst = 'ParticipateDoNotInitiate'
+            
+        if isclose:
+            _execInst += ',Close'
+
+        if _execInst != '':
+            order['execInst'] = _execInst
+
+        return self._curl_bitmex(path=endpoint, postdict=order, verb="POST")
+
+    @authentication_required
     def place_order(self, quantity, price):
         """Place an order."""
         if price < 0:
@@ -173,8 +197,19 @@ class BitMEX(object):
         for order in orders:
             order['clOrdID'] = self.orderIDPrefix + base64.b64encode(uuid.uuid4().bytes).decode('utf8').rstrip('=\n')
             order['symbol'] = self.symbol
+
+            pos = self.ws.position(self.symbol)
+            pos = pos['currentQty']
+            side = order['side']#Buy or Sell
+            _execInst = ''
             if self.postOnly:
-                order['execInst'] = 'ParticipateDoNotInitiate'
+                _execInst = 'ParticipateDoNotInitiate'
+            if pos > 0 and side == 'Sell':
+                _execInst += ',Close'
+            elif pos < 0 and side == 'Buy':
+                _execInst += ',Close'
+            if _execInst != '':
+                order['execInst'] = _execInst
         return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='POST', rethrow_errors=True)
 
     @authentication_required
