@@ -96,7 +96,10 @@ class Bitstamp():
             #return json.loads(jsonstr)
             return response.json()
         elif code == 403:
-            return 'please active your apikey'
+            raise Exception('please active your apikey')
+            return 
+        else:
+            raise Exception('bitmex rest api error. code: %d' % (code))
         return None
 
     def _buy(self, amount, price):
