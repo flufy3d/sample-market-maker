@@ -204,10 +204,11 @@ class BitMEX(object):
             _execInst = ''
             if self.postOnly:
                 _execInst = 'ParticipateDoNotInitiate'
-            if pos > 0 and side == 'Sell':
-                _execInst += ',Close'
-            elif pos < 0 and side == 'Buy':
-                _execInst += ',Close'
+            #batch order close attribute not work
+            #if pos > 0 and side == 'Sell':
+            #    _execInst += ',Close'
+            #elif pos < 0 and side == 'Buy':
+            #    _execInst += ',Close'
             if _execInst != '':
                 order['execInst'] = _execInst
         return self._curl_bitmex(path='order/bulk', postdict={'orders': orders}, verb='POST', rethrow_errors=True)

@@ -380,7 +380,10 @@ class OrderManager:
 
                     if _order['side'] == choose_side:
                         logger.info("Only one order.try a close boost.")
-                        self.exchange.place_order_raw(_order,True)
+                        if abs(pos) > 1000:
+                            self.exchange.place_order_raw(_order,True)
+                        else:
+                            self.exchange.place_order_raw(_order,False)
                     else:
                         logger.info("Only one order.just place order.")
                         self.exchange.place_order_raw(_order,False)
