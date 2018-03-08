@@ -227,6 +227,7 @@ class OrderManager:
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
         self.last_exec_time = time()
+        self.log_limit_exceeded = True
         self.reset()
 
     def reset(self):
@@ -460,15 +461,24 @@ class OrderManager:
 
 
         # Messaging if the position limits are reached
-        if self.long_position_limit_exceeded():
+        long_e = self.long_position_limit_exceeded()
+        short_e = self.short_position_limit_exceeded()
+        if long_e and self.log_limit_exceeded:
             logger.info("Long delta limit exceeded")
             logger.info("Current Position: %.f, Maximum Position: %.f" %
                         (self.exchange.get_delta(), settings.MAX_POSITION))
+            self.log_limit_exceeded = False
 
-        if self.short_position_limit_exceeded():
+
+        if short_e and self.log_limit_exceeded:
             logger.info("Short delta limit exceeded")
             logger.info("Current Position: %.f, Minimum Position: %.f" %
                         (self.exchange.get_delta(), settings.MIN_POSITION))
+            self.log_limit_exceeded = False
+
+        if not (long_e or short_e):
+            self.log_limit_exceeded = True
+
 
     ###
     # Running
@@ -543,7 +553,8 @@ class OrderManager:
                 self.exchange1._buy(amount,price*(1.0 + _discount))
 
 
-            self.running_qty = self.exchange.get_delta()
+            #self.running_qty = self.exchange.get_delta()
+            self.running_qty += _d
         elif _d_abs >= 1:
             logger.info("less than 10 usd we don't exec bitstamp order.")
 
