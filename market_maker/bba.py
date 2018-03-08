@@ -233,6 +233,7 @@ class OrderManager:
     def reset(self):
         self.exchange.cancel_all_orders()
         self.sanity_check()
+        sleep(1)
 
 
     def get_ticker(self):
