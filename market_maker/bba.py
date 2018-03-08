@@ -499,7 +499,6 @@ class OrderManager:
         try:
             self.exchange.cancel_all_orders()
             sleep(0.2)
-            self.process_position_change()
             self.exchange.bitmex.exit()
         except errors.AuthenticationError as e:
             logger.info("Was not authenticated; could not cancel orders.")
@@ -516,6 +515,7 @@ class OrderManager:
         fundrate = fundrate_tuple['rate'] + fundrate_tuple['irate']*fundrate_tuple['weight']
 
         greed_index = abs(fundrate_tuple['irate'])/0.00375*settings.TARGET_PROFIT_RATE
+        greed_index = greed_index * 1.2
 
         br = greed_index + settings.TARGET_PROFIT_RATE + fundrate
         sr = greed_index + settings.TARGET_PROFIT_RATE - fundrate
