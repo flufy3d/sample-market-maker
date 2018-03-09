@@ -228,12 +228,13 @@ class OrderManager:
         self.running_qty = self.starting_qty
         self.last_exec_time = time()
         self.log_limit_exceeded = True
+        self.first_run = True
         self.reset()
 
     def reset(self):
         self.exchange.cancel_all_orders()
         self.sanity_check()
-        sleep(1)
+
 
 
     def get_ticker(self):
@@ -585,6 +586,10 @@ class OrderManager:
                 self.do_once()
 
                 self.last_exec_time = curTime
+
+                if self.first_run:
+                    self.last_exec_time += 5
+                    self.first_run = False
             else:
                 #need high speed
                 self.process_position_change()
