@@ -622,11 +622,11 @@ def margin(instrument, quantity, price):
 
 
 def run():
-    logger.info('BBA Version: %s\n' % constants.VERSION)
 
-    om = OrderManager()
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
     try:
+        logger.info('BBA Version: %s\n' % constants.VERSION)
+        om = OrderManager()
         om.run_loop()
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
