@@ -367,6 +367,7 @@ class OrderManager:
 
 
         if len(to_create) > 0:
+            self.first_run = True # delay time to prevert create order twice
             logger.info("Creating %d orders:" % (len(to_create)))
             for order in reversed(to_create):
                 logger.info("%4s %d @ %.*f" % (order['side'], order['orderQty'], tickLog, order['price']))
@@ -588,7 +589,7 @@ class OrderManager:
                 self.last_exec_time = curTime
 
                 if self.first_run:
-                    self.last_exec_time += 5
+                    self.last_exec_time += 3
                     self.first_run = False
             else:
                 #need high speed
