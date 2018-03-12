@@ -7,3 +7,4 @@ env
 tmp/log.txt
 project.sublime-project
 project.sublime-workspace
+*.txt
