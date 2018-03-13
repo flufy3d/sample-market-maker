@@ -192,13 +192,23 @@ class BitMEXWebsocket():
     def __wait_for_account(self):
         '''On subscribe, this data will come down. Wait for it.'''
         # Wait for the keys to show up from the ws
+        num = 0
         while not {'margin', 'position', 'order'} <= set(self.data):
             sleep(0.1)
+            num += 1
+            if num > 200:
+                self.exit()
+                break
 
     def __wait_for_symbol(self, symbol):
         '''On subscribe, this data will come down. Wait for it.'''
+        num = 0
         while not {'instrument', 'trade', 'quote'} <= set(self.data):
             sleep(0.1)
+            num += 1
+            if num > 200:
+                self.exit()
+                break
 
     def __send_command(self, command, args):
         '''Send a raw command.'''

@@ -599,7 +599,9 @@ class OrderManager:
 
 
     def restart(self):
+        self.exchange.cancel_all_orders()
         logger.info("Restarting the market maker...")
+        sleep(10)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
 #
