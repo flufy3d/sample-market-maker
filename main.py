@@ -26,6 +26,7 @@ def run():
 
 def copy_files():
     package_base = os.path.dirname(__file__)
+    package_base += './market_maker/'
 
     if not os.path.isfile(os.path.join(os.getcwd(), 'settings.py')):
         shutil.copyfile(os.path.join(package_base, '_settings_base.py'), 'settings.py')
