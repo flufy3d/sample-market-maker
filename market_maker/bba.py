@@ -11,6 +11,7 @@ import traceback
 
 from market_maker import bitmex
 from market_maker import bitstamp
+from market_maker.telegram import send_message
 from market_maker.settings import settings
 from market_maker.utils import log, constants, errors, math
 
@@ -543,15 +544,18 @@ class OrderManager:
         _d_abs = abs(_d)
         if  _d_abs > 10:
             logger.info('detect position change,current %d ,delta %d' % (self.running_qty,_d))
+            send_message('detect position change,current %d ,delta %d' % (self.running_qty,_d))
             if _d > 0:
                 price = float(bitstamp_ticker['buy'])
                 amount = _d_abs / price
                 logger.info("sell %d usd %.4f btc @%.2f bitstamp" % (_d_abs,amount,price))
+                send_message("sell %d usd %.4f btc @%.2f bitstamp" % (_d_abs,amount,price))
                 self.exchange1._sell(amount,price*(1.0 - _discount))
             else:
                 price = float(bitstamp_ticker['sell'])
                 amount = _d_abs / price
                 logger.info("buy %d usd %.4f btc @%.2f bitstamp" % (_d_abs,amount,price))
+                send_message("buy %d usd %.4f btc @%.2f bitstamp" % (_d_abs,amount,price))
                 self.exchange1._buy(amount,price*(1.0 + _discount))
 
 
@@ -601,6 +605,7 @@ class OrderManager:
     def restart(self):
         self.exchange.cancel_all_orders()
         logger.info("Restarting the market maker...")
+        send_message("Restarting the market maker...")
         sleep(10)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
@@ -628,6 +633,7 @@ def run():
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
     try:
         logger.info('BBA Version: %s\n' % constants.VERSION)
+        send_message('BBA Version: %s\n' % constants.VERSION)
         om = OrderManager()
         om.run_loop()
     except (KeyboardInterrupt, SystemExit):
@@ -635,6 +641,7 @@ def run():
     except Exception as e:
         s=traceback.format_exc()
         logger.error('crashed! error: %s' %(str(e)))
+        send_message('crashed! error: %s' %(str(e)))
         logger.error(s)
         sys.exit()
 

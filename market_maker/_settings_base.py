@@ -119,3 +119,10 @@ WATCHED_FILES = [join('market_maker', 'bba.py'), join('market_maker', 'bitmex.py
 
 # Specify the contracts that you hold. These will be used in portfolio calculations.
 CONTRACTS = ['XBTUSD']
+
+
+#### Telegram Observer Config
+#Turtorial for how to get id and token(https://www.forsomedefinition.com/automation/creating-telegram-bot-notifications/)
+telegram_chatid = '12345'
+telegram_token = '1234:xxxx'
+telegram_rmsc = 3 #telegram_repeat_message_send_count
