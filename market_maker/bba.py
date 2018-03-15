@@ -542,6 +542,9 @@ class OrderManager:
         _discount = 0.1
 
         _d_abs = abs(_d)
+        if _d_abs > 5000:
+            raise Exception('abnormal situation,too many delta change!')
+
         if  _d_abs > 10:
             logger.info('detect position change,current %d ,delta %d' % (self.running_qty,_d))
             send_message('detect position change,current %d ,delta %d' % (self.running_qty,_d))
