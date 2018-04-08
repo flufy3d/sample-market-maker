@@ -630,15 +630,17 @@ def cost(instrument, quantity, price):
 def margin(instrument, quantity, price):
     return cost(instrument, quantity, price) * instrument["initMargin"]
 
+def do_work():
+    logger.info('BBA Version: %s\n' % constants.VERSION)
+    send_message('BBA Version: %s\n' % constants.VERSION)
+    om = OrderManager()
+    om.run_loop()    
 
 def run():
 
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
     try:
-        logger.info('BBA Version: %s\n' % constants.VERSION)
-        send_message('BBA Version: %s\n' % constants.VERSION)
-        om = OrderManager()
-        om.run_loop()
+        do_work()
     except (KeyboardInterrupt, SystemExit):
         sys.exit()
     except Exception as e:
@@ -646,6 +648,8 @@ def run():
         logger.error('crashed! error: %s' %(str(e)))
         send_message('crashed! error: %s' %(str(e)))
         logger.error(s)
-        sys.exit()
+        #sys.exit()
+        sleep(20)
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
