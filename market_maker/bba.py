@@ -609,8 +609,8 @@ class OrderManager:
         self.exchange.cancel_all_orders()
         logger.info("Restarting the market maker...")
         send_message("Restarting the market maker...")
-        sleep(10)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        #os.execv(sys.executable, [sys.executable] + sys.argv)
+        raise Exception('check_connection failed.')
 
 #
 # Helpers
@@ -639,17 +639,18 @@ def do_work():
 def run():
 
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
-    try:
-        do_work()
-    except (KeyboardInterrupt, SystemExit):
-        sys.exit()
-    except Exception as e:
-        s=traceback.format_exc()
-        logger.error('crashed! error: %s' %(str(e)))
-        send_message('crashed! error: %s' %(str(e)))
-        logger.error(s)
-        #sys.exit()
+    while True:
+        try:
+            do_work()
+        except (KeyboardInterrupt, SystemExit):
+            sys.exit()
+        except Exception as e:
+            s=traceback.format_exc()
+            logger.error('crashed! error: %s' %(str(e)))
+            send_message('crashed! error: %s' %(str(e)))
+            logger.error(s)
+            #sys.exit()
         sleep(20)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+       
 
 
