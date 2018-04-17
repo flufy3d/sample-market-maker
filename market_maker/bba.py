@@ -508,7 +508,7 @@ class OrderManager:
         except Exception as e:
             logger.info("Unable to cancel orders: %s" % e)
 
-        sys.exit()
+        os._exit(0)
 
     def find_start_postion(self):
         bitmex_ticker = self.get_ticker()
