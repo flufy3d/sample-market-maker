@@ -20,7 +20,6 @@ import os
 watched_files_mtimes = [(f, getmtime(f)) for f in settings.WATCHED_FILES]
 
 
-force_exit = False
 #
 # Helpers
 #
@@ -508,8 +507,8 @@ class OrderManager:
             logger.info("Was not authenticated; could not cancel orders.")
         except Exception as e:
             logger.info("Unable to cancel orders: %s" % e)
-        force_exit = True
-        os._exit(0)
+
+        sys.exit()
 
     def find_start_postion(self):
         bitmex_ticker = self.get_ticker()
@@ -638,7 +637,7 @@ def do_work():
     om.run_loop()    
 
 def run():
-    global force_exit
+
     # Try/except just keeps ctrl-c from printing an ugly stacktrace
     while True:
         try:
@@ -647,14 +646,16 @@ def run():
             sys.exit()
         except Exception as e:
             s=traceback.format_exc()
-            logger.error('crashed! error: %s' %(str(e)))
-            send_message('crashed! error: %s' %(str(e)))
+            msg = str(e)
+            if msg[0:4] == 'exit':
+                logger.error('killed by admin')
+                sys.exit()
+                break
+            logger.error('crashed! error: %s' %(msg))
+            send_message('crashed! error: %s' %(msg))
             logger.error(s)
             #sys.exit()
-        if force_exit:
-            logger.info('kill by admin!')
-            break
-        sleep(20)
+            sleep(20)
        
 
 
