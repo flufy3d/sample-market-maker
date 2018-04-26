@@ -198,7 +198,7 @@ class BitMEXWebsocket():
             num += 1
             if num > 600:
                 self.exit()
-                raise Execution("__wait_for_account timeout.")
+                raise Exception("__wait_for_account timeout.")
                 break
 
     def __wait_for_symbol(self, symbol):
@@ -209,7 +209,7 @@ class BitMEXWebsocket():
             num += 1
             if num > 600:
                 self.exit()
-                raise Execution("__wait_for_symbol timeout.")
+                raise Exception("__wait_for_symbol timeout.")
                 break
 
     def __send_command(self, command, args):
