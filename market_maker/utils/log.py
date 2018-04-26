@@ -13,10 +13,10 @@ def setup_custom_logger(name, log_level=settings.LOG_LEVEL):
     logger.setLevel(log_level)
     logger.addHandler(handler)
 
-    if not os.path.exists('tmp'):
-        os.makedirs('tmp')
-    fh = logging.FileHandler('./tmp/log.txt')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    #if not os.path.exists('tmp'):
+    #    os.makedirs('tmp')
+    #fh = logging.FileHandler('./tmp/log.txt')
+    #fh.setFormatter(formatter)
+    #logger.addHandler(fh)
 
     return logger
